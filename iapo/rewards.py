@@ -1,0 +1,74 @@
+"""IAPO Reward Functions - Infrastructure-aware scoring"""
+import re
+import subprocess
+from typing import Dict, Tuple
+
+# Infrastructure keywords for validation
+TF_RESOURCES = {"aws_instance", "aws_s3_bucket", "aws_vpc", "aws_subnet", "aws_security_group",
+                "aws_lambda_function", "aws_iam_role", "aws_rds_cluster", "aws_eks_cluster"}
+K8S_KINDS = {"Deployment", "Service", "ConfigMap", "Secret", "Ingress", "StatefulSet", "CronJob"}
+DOCKER_KEYWORDS = {"FROM", "RUN", "COPY", "CMD", "ENTRYPOINT", "EXPOSE", "WORKDIR"}
+
+
+class IaCReward:
+    """Reward calculator for IaC generation with IAPO techniques"""
+
+    def __init__(self, alpha: float = 0.4, beta: float = 0.3, gamma: float = 0.3):
+        self.alpha = alpha  # syntax weight
+        self.beta = beta    # correctness weight
+        self.gamma = gamma  # format weight
+
+    def score(self, response: str, category: str) -> Tuple[float, Dict]:
+        """Calculate IAPO reward: R = α*syntax + β*correctness + γ*format"""
+        if category == "terraform":
+            syntax, correctness, fmt = self._score_terraform(response)
+        elif category == "kubernetes":
+            syntax, correctness, fmt = self._score_kubernetes(response)
+        elif category == "docker":
+            syntax, correctness, fmt = self._score_docker(response)
+        elif category == "cicd":
+            syntax, correctness, fmt = self._score_cicd(response)
+        else:
+            syntax, correctness, fmt = 0.0, 0.0, 0.0
+
+        total = self.alpha * syntax + self.beta * correctness + self.gamma * fmt
+        return total, {"syntax": syntax, "correctness": correctness, "format": fmt}
+
+    def _score_terraform(self, response: str) -> Tuple[float, float, float]:
+        """Score Terraform configuration"""
+        syntax = 1.0 if 'resource "' in response or 'module "' in response else 0.0
+        correctness = 1.0 if any(r in response for r in TF_RESOURCES) else 0.5 if "resource" in response else 0.0
+        fmt = 1.0 if response.count("{") == response.count("}") else 0.5
+        return syntax, correctness, fmt
+
+    def _score_kubernetes(self, response: str) -> Tuple[float, float, float]:
+        """Score Kubernetes manifest"""
+        syntax = 1.0 if "apiVersion:" in response and "kind:" in response else 0.0
+        correctness = 1.0 if any(k in response for k in K8S_KINDS) else 0.0
+        fmt = 1.0 if "metadata:" in response and "spec:" in response else 0.5
+        return syntax, correctness, fmt
+
+    def _score_docker(self, response: str) -> Tuple[float, float, float]:
+        """Score Dockerfile or docker-compose"""
+        is_dockerfile = "FROM" in response.upper()
+        is_compose = "services:" in response or "version:" in response
+        syntax = 1.0 if is_dockerfile or is_compose else 0.0
+        correctness = 1.0 if sum(1 for k in DOCKER_KEYWORDS if k in response.upper()) >= 3 else 0.5
+        fmt = 1.0 if len(response.strip()) > 50 else 0.5
+        return syntax, correctness, fmt
+
+    def _score_cicd(self, response: str) -> Tuple[float, float, float]:
+        """Score CI/CD pipeline"""
+        is_gha = "jobs:" in response or "runs-on:" in response
+        is_gitlab = "stages:" in response or "script:" in response
+        is_jenkins = "pipeline" in response.lower() or "stage(" in response
+        syntax = 1.0 if is_gha or is_gitlab or is_jenkins else 0.0
+        correctness = 1.0 if "steps:" in response or "script:" in response else 0.5
+        fmt = 1.0 if response.count(":") >= 3 else 0.5
+        return syntax, correctness, fmt
+
+
+def get_score_fn(category: str):
+    """Get scoring function for a category - compatible with reasoning_gym"""
+    reward = IaCReward()
+    return lambda response, _: reward.score(response, category)[0]

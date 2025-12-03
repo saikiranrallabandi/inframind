@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "iapo"
+version = "0.1.0"
+description = "Infrastructure-Aware Policy Optimization for Small Language Models"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [{name = "Sai Kiran Rallabandi"}]
+keywords = ["llm", "reinforcement-learning", "infrastructure", "devops", "terraform", "kubernetes"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+dependencies = [
+    "torch>=2.0.0",
+    "transformers>=4.35.0",
+    "numpy>=1.24.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "black", "flake8"]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/iapo"
+Documentation = "https://github.com/yourusername/iapo#readme"
+Repository = "https://github.com/yourusername/iapo"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["iapo*"]
