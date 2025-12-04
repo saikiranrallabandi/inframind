@@ -4,7 +4,34 @@
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![arXiv](https://img.shields.io/badge/arXiv-2024.XXXXX-b31b1b.svg)](https://arxiv.org/)
 
-**The first reinforcement learning framework for training small language models to reason about Infrastructure-as-Code.**
+**A reinforcement learning framework for fine-tuning small language models to reason about Infrastructure-as-Code.**
+
+> **Note**: IAPO is a *training method*, not a model. It fine-tunes existing SLMs (like Qwen) using GRPO with domain-specific rewards. The resulting models (e.g., `Qwen-0.5B-IAPO`) can generate valid IaC.
+
+## What is IAPO?
+
+IAPO (Infrastructure-Aware Policy Optimization) is a **training framework** that:
+
+1. Takes an existing small language model (Qwen, Llama, etc.)
+2. Fine-tunes it using reinforcement learning (GRPO)
+3. Uses infrastructure-specific reward functions to guide learning
+4. Produces a model capable of generating valid Infrastructure-as-Code
+
+```
+┌─────────────────┐      ┌─────────────────┐      ┌─────────────────────┐
+│  Base Model     │  →   │  IAPO Training  │  →   │  Fine-tuned Model   │
+│  (Qwen 0.5B)    │      │  (GRPO + IaC    │      │  (Qwen-0.5B-IAPO)   │
+│                 │      │   Rewards)      │      │                     │
+└─────────────────┘      └─────────────────┘      └─────────────────────┘
+```
+
+### What IAPO Provides
+
+| Component | Description |
+|-----------|-------------|
+| **IaC-Bench** | Benchmark dataset with 500+ IaC tasks |
+| **IAPO Rewards** | Domain-specific reward functions for Terraform, K8s, Docker, CI/CD |
+| **Training Pipeline** | GRPO implementation adapted for infrastructure reasoning |
 
 ## The Problem
 
@@ -22,7 +49,7 @@ Small open-source models (< 1B parameters) fail at IaC because:
 
 ## Our Solution
 
-**IAPO** (Infrastructure-Aware Policy Optimization) uses reinforcement learning to teach small models to **reason** about infrastructure, not just memorize examples.
+**IAPO** fine-tunes small models using reinforcement learning to **reason** about infrastructure, not just memorize examples.
 
 | Approach | Method | Result |
 |----------|--------|--------|
@@ -44,11 +71,11 @@ Where:
 
 ## Features
 
-- 🚀 **IaC-Bench**: 500+ tasks across Terraform, Kubernetes, Docker, CI/CD
-- 🧠 **GRPO Training**: Reinforcement learning that teaches reasoning
-- 🔧 **Qwen-based**: Strong base model for infrastructure tasks
-- 📦 **Alpaca Format**: Compatible with standard training pipelines
-- 🏠 **Local-first**: Runs entirely on your machine
+- **IaC-Bench**: 500+ tasks across Terraform, Kubernetes, Docker, CI/CD
+- **GRPO Training**: Reinforcement learning that teaches reasoning
+- **Model Agnostic**: Works with Qwen, Llama, Mistral, or any HuggingFace model
+- **Alpaca Format**: Compatible with standard training pipelines
+- **Local-first**: Runs entirely on your machine
 
 ## Installation
 
@@ -72,12 +99,12 @@ from iapo import create_dataset, IAPOTrainer
 # Load 500+ IaC tasks
 dataset = create_dataset(size=100)
 
-# Train with IAPO (GRPO + IaC rewards)
+# Fine-tune with IAPO (GRPO + IaC rewards)
 trainer = IAPOTrainer(model_name="Qwen/Qwen2.5-0.5B-Instruct")
 trainer.train(dataset, epochs=1)
 
-# Save your IaC-reasoning model
-trainer.save("./my-iac-model")
+# Save your fine-tuned model
+trainer.save("./qwen-0.5b-iapo")
 ```
 
 ## How It Works
@@ -191,14 +218,14 @@ for epoch in history:
 
 ## Comparison with Existing Work
 
-| Project | Method | Model Size | IaC-specific | Open Source |
-|---------|--------|------------|--------------|-------------|
-| [devops-slm-v1](https://huggingface.co/lakhera2023/devops-slm-v1) | LoRA/SFT | 907M | ✅ | ✅ |
-| [AIAC](https://github.com/gofireflyio/aiac) | Prompting | API-based | ✅ | ✅ |
-| GPT-4 / Claude | - | >100B | ❌ | ❌ |
-| **IAPO** | **GRPO/RL** | **0.5B-3B** | **✅** | **✅** |
+| Project | Type | Method | IaC-specific |
+|---------|------|--------|--------------|
+| [devops-slm-v1](https://huggingface.co/lakhera2023/devops-slm-v1) | Fine-tuned Model | LoRA/SFT | Yes |
+| [AIAC](https://github.com/gofireflyio/aiac) | CLI Tool | Prompting (API) | Yes |
+| GPT-4 / Claude | API Service | - | No |
+| **IAPO** | **Training Framework** | **GRPO/RL** | **Yes** |
 
-**Key differentiator**: IAPO uses **reinforcement learning** with infrastructure-specific rewards, enabling models to **reason** about IaC rather than just memorize patterns.
+**Key differentiator**: IAPO is a *training framework*, not a model or API wrapper. It uses reinforcement learning with infrastructure-specific rewards to fine-tune any SLM for IaC generation.
 
 ## Project Structure
 
@@ -221,9 +248,9 @@ iapo/
 ## Roadmap
 
 - [x] IaC-Bench dataset (500+ tasks)
-- [x] IAPO trainer with GRPO
-- [x] Basic reward functions
-- [ ] Pre-trained model release on HuggingFace
+- [x] IAPO training framework with GRPO
+- [x] Domain-specific reward functions
+- [ ] Release fine-tuned models on HuggingFace (`qwen-0.5b-iapo`, `qwen-1.5b-iapo`)
 - [ ] Real validation integration (`terraform validate`)
 - [ ] Security scoring (`tfsec`, `checkov`)
 - [ ] CLI tool (`iapo generate "create S3 bucket"`)
@@ -233,7 +260,7 @@ iapo/
 
 ```bibtex
 @article{rallabandi2024iapo,
-  title={IAPO: Infrastructure-Aware Policy Optimization for Small Language Models},
+  title={IAPO: Infrastructure-Aware Policy Optimization for Fine-tuning Small Language Models},
   author={Rallabandi, Sai Kiran},
   journal={arXiv preprint arXiv:2024.XXXXX},
   year={2024}
