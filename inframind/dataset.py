@@ -1,9 +1,74 @@
-"""InfraMind-Bench Dataset - 500+ IaC tasks in Alpaca format"""
+"""InfraMind-Bench Dataset - 1500+ IaC tasks in Alpaca format"""
 import json
 from typing import List, Dict, Optional
 
+# ==================== OUT-OF-DOMAIN EXAMPLES ====================
+# Teach model to decline non-DevOps questions
+
+OUT_OF_DOMAIN_RESPONSE = "I'm a DevOps and Infrastructure assistant. I can help with Terraform, Kubernetes, Docker, CI/CD, cloud infrastructure, monitoring, and debugging. For other topics, please use a general-purpose assistant."
+
+OUT_OF_DOMAIN_EXAMPLES = [
+    # Entertainment
+    ("What's the best movie of 2024?", ""),
+    ("Recommend me a Netflix series", ""),
+    ("Who won the Oscars?", ""),
+    ("Write a poem about nature", ""),
+    ("Tell me a joke", ""),
+    ("What's your favorite song?", ""),
+    # Food & Lifestyle
+    ("What's a good recipe for pasta?", ""),
+    ("How do I lose weight?", ""),
+    ("Recommend a restaurant in NYC", ""),
+    ("What should I wear to a wedding?", ""),
+    ("How do I make coffee?", ""),
+    # Education & General
+    ("Explain Shakespeare's Hamlet", ""),
+    ("What's the capital of France?", ""),
+    ("Solve this math problem: 2x + 5 = 15", ""),
+    ("Write an essay about climate change", ""),
+    ("Help me with my homework", ""),
+    ("What year did World War 2 end?", ""),
+    # Personal & Advice
+    ("How do I ask someone on a date?", ""),
+    ("I'm feeling sad, what should I do?", ""),
+    ("What's the meaning of life?", ""),
+    ("Should I quit my job?", ""),
+    ("How do I make friends?", ""),
+    # Medical & Legal
+    ("I have a headache, what medicine should I take?", ""),
+    ("Is this rash serious?", ""),
+    ("Do I need a lawyer for this?", ""),
+    ("What are my legal rights?", ""),
+    # Finance (non-infra)
+    ("Should I invest in Bitcoin?", ""),
+    ("What stocks should I buy?", ""),
+    ("How do I file taxes?", ""),
+    ("Is this a good mortgage rate?", ""),
+    # Sports & Games
+    ("Who won the Super Bowl?", ""),
+    ("How do I play chess?", ""),
+    ("What's the score of the game?", ""),
+    ("Best video games of 2024?", ""),
+    # Travel
+    ("Plan a trip to Paris for me", ""),
+    ("Best hotels in Tokyo?", ""),
+    ("How do I get a visa?", ""),
+    # Coding (non-infra)
+    ("Write a React component for a button", ""),
+    ("How do I center a div in CSS?", ""),
+    ("Explain recursion in Python", ""),
+    ("Write a sorting algorithm", ""),
+    ("How do I use React hooks?", ""),
+    # Random
+    ("What's 2 + 2?", ""),
+    ("Translate this to Spanish", ""),
+    ("Write a cover letter for me", ""),
+    ("Summarize this article", ""),
+    ("What's the weather like?", ""),
+]
+
 # ==================== TASK TEMPLATES ====================
-# Generate 500+ tasks programmatically from templates
+# Generate 1500+ tasks programmatically from templates
 
 TERRAFORM_TEMPLATES = [
     # AWS Compute
@@ -787,6 +852,18 @@ def _generate_tasks() -> List[Dict]:
                 "id": f"debug-{task_id:03d}", "instruction": instr, "input": input_str,
                 "category": "debugging", "difficulty": "medium"
             })
+
+    # Out-of-domain examples (teach model to decline)
+    for instruction, input_str in OUT_OF_DOMAIN_EXAMPLES:
+        task_id += 1
+        tasks.append({
+            "id": f"ood-{task_id:03d}",
+            "instruction": instruction,
+            "input": input_str,
+            "output": OUT_OF_DOMAIN_RESPONSE,
+            "category": "out-of-domain",
+            "difficulty": "easy"
+        })
 
     return tasks
 
