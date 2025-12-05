@@ -1,7 +1,7 @@
-"""IAPO Quick Start Example"""
-from iapo import IaCBench, IAPOTrainer, create_dataset
+"""InfraMind Quick Start Example"""
+from inframind import IaCBench, InfraMindTrainer, create_dataset
 
-# 1. Load IaC-Bench dataset
+# 1. Load InfraMind-Bench dataset
 dataset = create_dataset(size=50)  # Start small
 print(f"Dataset: {len(dataset)} tasks")
 
@@ -13,16 +13,16 @@ print(f"  Input: {task['input']}")
 print(f"  Category: {task['category']}")
 
 # 2. Initialize trainer with Qwen
-trainer = IAPOTrainer(
+trainer = InfraMindTrainer(
     model_name="Qwen/Qwen2.5-0.5B-Instruct",
     lr=1e-5,
     group_size=2
 )
 
 # 3. Train (1 epoch for demo)
-print("\nTraining...")
+print("\nFine-tuning...")
 history = trainer.train(dataset, epochs=1)
 
-# 4. Save model
-trainer.save("./iapo-quickstart-model")
+# 4. Save fine-tuned model
+trainer.save("./qwen-0.5b-inframind")
 print("\nModel saved!")

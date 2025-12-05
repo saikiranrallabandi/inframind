@@ -1,4 +1,4 @@
-"""IAPO Trainer - GRPO with Infrastructure-Aware Optimization"""
+"""InfraMind Trainer - Fine-tuning with GRPO for Infrastructure-as-Code"""
 import torch
 import numpy as np
 from torch.optim import AdamW
@@ -8,10 +8,10 @@ from .dataset import IaCBench
 from .rewards import IaCReward
 
 
-class IAPOTrainer:
-    """IAPO: Infrastructure-Aware Policy Optimization Trainer"""
+class InfraMindTrainer:
+    """InfraMind: Fine-tuning trainer for IaC generation using GRPO"""
 
-    def __init__(self, model_name: str = "HuggingFaceTB/SmolLM-135M-Instruct",
+    def __init__(self, model_name: str = "Qwen/Qwen2.5-0.5B-Instruct",
                  lr: float = 1e-5, group_size: int = 2, device: str = None):
         self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
         self.model = AutoModelForCausalLM.from_pretrained(model_name).to(self.device)
@@ -40,11 +40,11 @@ class IAPOTrainer:
         return self.tokenizer.batch_decode(outputs, skip_special_tokens=True)
 
     def train_step(self, task: Dict) -> Dict:
-        """Single IAPO training step with GRPO"""
+        """Single training step with GRPO"""
         prompt = self._format_prompt(task)
         responses = self._generate(prompt, self.group_size)
 
-        # Score responses (IAPO reward)
+        # Score responses
         rewards = np.array([self.reward_fn.score(r, task["category"])[0] for r in responses])
 
         # GRPO advantage: normalize within group
@@ -80,6 +80,6 @@ class IAPOTrainer:
         return history
 
     def save(self, path: str):
-        """Save trained model"""
+        """Save fine-tuned model"""
         self.model.save_pretrained(path)
         self.tokenizer.save_pretrained(path)

@@ -1,4 +1,4 @@
-"""IaC-Bench Dataset - 500+ tasks in Alpaca format"""
+"""InfraMind-Bench Dataset - 500+ IaC tasks in Alpaca format"""
 import json
 from typing import List, Dict, Optional
 
@@ -244,7 +244,7 @@ TASKS = _generate_tasks()
 
 
 class IaCBench:
-    """IaC-Bench: 500+ Infrastructure-as-Code tasks"""
+    """InfraMind-Bench: 500+ Infrastructure-as-Code tasks"""
 
     def __init__(self, categories: Optional[List[str]] = None, size: Optional[int] = None):
         self.tasks = TASKS.copy()
@@ -262,7 +262,7 @@ class IaCBench:
 
     def save(self, path: str):
         with open(path, "w") as f:
-            json.dump({"name": "IaC-Bench", "version": "1.0", "total": len(self.tasks), "tasks": self.tasks}, f, indent=2)
+            json.dump({"name": "InfraMind-Bench", "version": "1.0", "total": len(self.tasks), "tasks": self.tasks}, f, indent=2)
 
 
 def create_dataset(categories: Optional[List[str]] = None, size: Optional[int] = None) -> IaCBench:

@@ -1,6 +1,5 @@
-"""IAPO Reward Functions - Infrastructure-aware scoring"""
+"""InfraMind Reward Functions - Infrastructure-aware scoring"""
 import re
-import subprocess
 from typing import Dict, Tuple
 
 # Infrastructure keywords for validation
@@ -11,7 +10,7 @@ DOCKER_KEYWORDS = {"FROM", "RUN", "COPY", "CMD", "ENTRYPOINT", "EXPOSE", "WORKDI
 
 
 class IaCReward:
-    """Reward calculator for IaC generation with IAPO techniques"""
+    """Reward calculator for IaC generation"""
 
     def __init__(self, alpha: float = 0.4, beta: float = 0.3, gamma: float = 0.3):
         self.alpha = alpha  # syntax weight
@@ -19,7 +18,7 @@ class IaCReward:
         self.gamma = gamma  # format weight
 
     def score(self, response: str, category: str) -> Tuple[float, Dict]:
-        """Calculate IAPO reward: R = α*syntax + β*correctness + γ*format"""
+        """Calculate reward: R = α*syntax + β*correctness + γ*format"""
         if category == "terraform":
             syntax, correctness, fmt = self._score_terraform(response)
         elif category == "kubernetes":
@@ -69,6 +68,6 @@ class IaCReward:
 
 
 def get_score_fn(category: str):
-    """Get scoring function for a category - compatible with reasoning_gym"""
+    """Get scoring function for a category"""
     reward = IaCReward()
     return lambda response, _: reward.score(response, category)[0]

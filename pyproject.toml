@@ -3,14 +3,14 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "iapo"
+name = "inframind"
 version = "0.1.0"
-description = "Infrastructure-Aware Policy Optimization for Small Language Models"
+description = "Fine-tuning toolkit for training small language models on Infrastructure-as-Code"
 readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}
 authors = [{name = "Sai Kiran Rallabandi"}]
-keywords = ["llm", "reinforcement-learning", "infrastructure", "devops", "terraform", "kubernetes"]
+keywords = ["llm", "fine-tuning", "infrastructure", "devops", "terraform", "kubernetes", "grpo"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -31,10 +31,10 @@ dependencies = [
 dev = ["pytest", "black", "flake8"]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/iapo"
-Documentation = "https://github.com/yourusername/iapo#readme"
-Repository = "https://github.com/yourusername/iapo"
+Homepage = "https://github.com/saikiranrallabandi/inframind"
+Documentation = "https://github.com/saikiranrallabandi/inframind#readme"
+Repository = "https://github.com/saikiranrallabandi/inframind"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["iapo*"]
+include = ["inframind*"]
