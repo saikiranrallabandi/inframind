@@ -4,9 +4,15 @@ from typing import Dict, Tuple
 
 # Infrastructure keywords for validation
 TF_RESOURCES = {"aws_instance", "aws_s3_bucket", "aws_vpc", "aws_subnet", "aws_security_group",
-                "aws_lambda_function", "aws_iam_role", "aws_rds_cluster", "aws_eks_cluster"}
-K8S_KINDS = {"Deployment", "Service", "ConfigMap", "Secret", "Ingress", "StatefulSet", "CronJob"}
+                "aws_lambda_function", "aws_iam_role", "aws_rds_cluster", "aws_eks_cluster",
+                "aws_sagemaker", "aws_emr", "google_compute", "azurerm_machine_learning"}
+K8S_KINDS = {"Deployment", "Service", "ConfigMap", "Secret", "Ingress", "StatefulSet", "CronJob",
+             "Job", "Pod", "PersistentVolumeClaim", "ServiceAccount"}
 DOCKER_KEYWORDS = {"FROM", "RUN", "COPY", "CMD", "ENTRYPOINT", "EXPOSE", "WORKDIR"}
+MLOPS_KEYWORDS = {"mlflow", "kubeflow", "sagemaker", "vertex", "feast", "ray", "airflow", "prefect",
+                  "seldon", "kserve", "triton", "torchserve", "tensorflow_serving", "vllm", "ollama",
+                  "nvidia.com/gpu", "resources:", "limits:", "requests:", "gpu", "training", "inference",
+                  "model", "pipeline", "dag", "experiment", "tracking", "serving", "endpoint"}
 
 
 class IaCReward:
@@ -27,6 +33,8 @@ class IaCReward:
             syntax, correctness, fmt = self._score_docker(response)
         elif category == "cicd":
             syntax, correctness, fmt = self._score_cicd(response)
+        elif category == "mlops":
+            syntax, correctness, fmt = self._score_mlops(response)
         else:
             syntax, correctness, fmt = 0.0, 0.0, 0.0
 
