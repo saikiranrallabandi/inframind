@@ -74,6 +74,25 @@ class IaCReward:
         fmt = 1.0 if response.count(":") >= 3 else 0.5
         return syntax, correctness, fmt
 
+    def _score_mlops(self, response: str) -> Tuple[float, float, float]:
+        """Score MLOps configuration"""
+        resp_lower = response.lower()
+
+        # Syntax: valid MLOps patterns
+        has_k8s = "apiVersion:" in response and ("gpu" in resp_lower or "serving" in resp_lower)
+        has_tf = 'resource "' in response and any(p in resp_lower for p in ["sagemaker", "vertex", "mlflow"])
+        has_docker = "FROM" in response and any(f in resp_lower for f in ["pytorch", "tensorflow", "cuda"])
+        has_pipeline = any(p in resp_lower for p in ["dag", "pipeline", "@task", "kubeflow"])
+        syntax = 1.0 if any([has_k8s, has_tf, has_docker, has_pipeline]) else 0.0
+
+        # Correctness: MLOps keywords
+        mlops_hits = sum(1 for k in MLOPS_KEYWORDS if k in resp_lower)
+        correctness = 1.0 if mlops_hits >= 4 else 0.5 if mlops_hits >= 2 else 0.0
+
+        # Format: structure
+        fmt = 1.0 if len(response) > 100 and response.count(":") >= 3 else 0.5
+        return syntax, correctness, fmt
+
 
 def get_score_fn(category: str):
     """Get scoring function for a category"""
