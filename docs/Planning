@@ -1,0 +1,223 @@
+InfraMind: Multi-Step Reasoning with DAPO
+
+  Implementation Plan
+
+  Based on https://arxiv.org/html/2412.18279v1 and https://github.com/BytedTsinghua-SIA/DAPO, here's the step-by-step plan:
+
+  ---
+  Phase 1: LLM-as-Judge Evaluation (Immediate)
+
+  Goal: Establish baseline accuracy metrics for SFT model
+
+  | Step | Task                       | Details                                        |
+  |------|----------------------------|------------------------------------------------|
+  | 1.1  | Create evaluation dataset  | Sample 100-200 tasks across all categories     |
+  | 1.2  | Generate SFT model outputs | Run inference on eval set                      |
+  | 1.3  | LLM-as-Judge scoring       | Use GPT-4/Claude to score outputs (0-10 scale) |
+  | 1.4  | Compute metrics            | Accuracy, category-wise breakdown              |
+
+  Scoring Criteria:
+  - Syntax correctness (valid HCL/YAML/Dockerfile)
+  - Semantic correctness (right resources/configs)
+  - Completeness (all required fields)
+  - Best practices (security, naming)
+
+  ---
+  Phase 2: Add Reasoning/Thinking to Dataset
+
+  Goal: Create chain-of-thought training data for IaC
+
+  | Step | Task                      | Details                                    |
+  |------|---------------------------|--------------------------------------------|
+  | 2.1  | Design thinking format    | <think>...</think> tags before code        |
+  | 2.2  | Generate reasoning traces | Use GPT-4 to create step-by-step reasoning |
+  | 2.3  | Augment dataset           | Add reasoning to existing 778+ tasks       |
+
+  Example Format:
+  Instruction: Create Terraform for S3 bucket with versioning
+
+  <think>
+  1. Need aws_s3_bucket resource for the bucket
+  2. Need aws_s3_bucket_versioning resource for versioning
+  3. Must reference bucket ID in versioning config
+  4. Set versioning status to "Enabled"
+  </think>
+
+  ```hcl
+  resource "aws_s3_bucket" "main" {
+    bucket = "my-bucket"
+  }
+
+  resource "aws_s3_bucket_versioning" "main" {
+    bucket = aws_s3_bucket.main.id
+    versioning_configuration {
+      status = "Enabled"
+    }
+  }
+
+  ---
+  Phase 3: GRPO Training (Foundation)
+
+  Goal: Implement Group Relative Policy Optimization
+
+  | Step | Task                             | Details                             |
+  |------|----------------------------------|-------------------------------------|
+  | 3.1  | Upgrade existing GRPO trainer    | Fix current train.py implementation |
+  | 3.2  | Add proper advantage computation | A_i = (r_i - μ) / (σ + ε)           |
+  | 3.3  | Implement PPO-style clipping     | clip(ρ, 1-ε, 1+ε)                   |
+  | 3.4  | Add KL divergence penalty        | Prevent policy drift                |
+  | 3.5  | Train on reasoning dataset       | Use thinking-augmented data         |
+
+  GRPO Loss:
+  # Sample G responses per prompt
+  rewards = [reward_fn(response) for response in responses]
+  advantages = (rewards - mean(rewards)) / (std(rewards) + 1e-8)
+
+  # Policy gradient with clipping
+  ratio = π_θ(y|x) / π_ref(y|x)
+  loss = -min(ratio * A, clip(ratio, 1-ε, 1+ε) * A)
+
+  ---
+  Phase 4: DAPO Training (Advanced)
+
+  Goal: Implement all 4 DAPO techniques from https://arxiv.org/abs/2503.14476
+
+  4.1 Clip-Higher (Prevent Entropy Collapse)
+
+  # Asymmetric clipping: more exploration on high advantage
+  ε_low = 0.2   # standard clip for negative advantage
+  ε_high = 0.28  # higher clip for positive advantage (more exploration)
+
+  if advantage > 0:
+      ratio_clipped = clip(ratio, 1-ε_low, 1+ε_high)
+  else:
+      ratio_clipped = clip(ratio, 1-ε_low, 1+ε_low)
+
+  4.2 Dynamic Sampling (Filter Zero-Gradient Batches)
+
+  # Skip batches where all rewards are identical
+  def is_valid_batch(rewards):
+      return std(rewards) > τ and 0 < mean(rewards) < 1
+
+  # Only train on informative batches
+  if is_valid_batch(rewards):
+      train_step(batch)
+
+  4.3 Token-Level Policy Gradient Loss
+
+  # Weight by token count, not sequence count
+  loss = 0
+  for response, advantage in zip(responses, advantages):
+      token_losses = -log_probs(response) * advantage
+      loss += sum(token_losses)  # Sum, not mean
+
+  loss /= total_tokens  # Normalize by total tokens
+
+  4.4 Overlong Reward Shaping
+
+  # Soft penalty for truncated sequences
+  def shaped_reward(response, base_reward, max_length):
+      if len(response) >= max_length:
+          penalty = min(1.0, (len(response) - max_length) / max_length)
+          return base_reward * (1 - 0.5 * penalty)  # Soft penalty
+      return base_reward
+
+  ---
+  Phase 5: Multi-Step Reasoning Rewards
+
+  Goal: Dense reward signals for reasoning steps
+
+  | Step | Task                       | Details                   |
+  |------|----------------------------|---------------------------|
+  | 5.1  | Step-level reward function | Score each reasoning step |
+  | 5.2  | Critic network (optional)  | Predict step-level value  |
+  | 5.3  | LLM-as-Judge for reasoning | Evaluate thinking quality |
+
+  IaC-Specific Reasoning Rewards:
+  def reasoning_reward(response, category):
+      # Parse thinking section
+      think_match = re.search(r'<think>(.*?)</think>', response, re.DOTALL)
+
+      if not think_match:
+          return 0.0  # No reasoning = no reward
+
+      thinking = think_match.group(1)
+      code = response.split('</think>')[-1]
+
+      # Score components
+      r_thinking = score_reasoning_steps(thinking, category)  # 0-1
+      r_syntax = score_syntax(code, category)                 # 0-1
+      r_semantic = score_semantic(code, category)             # 0-1
+      r_complete = score_completeness(code, category)         # 0-1
+
+      return 0.3 * r_thinking + 0.3 * r_syntax + 0.2 * r_semantic + 0.2 * r_complete
+
+  ---
+  Phase 6: Training Pipeline on Modal
+
+  Goal: End-to-end DAPO training on A100
+
+  # modal_dapo.py structure
+  @app.function(gpu="A100", timeout=7200)
+  def train_dapo():
+      # 1. Load SFT checkpoint (starting point)
+      model = load_sft_model("/models/inframind-sft/final")
+
+      # 2. Load reasoning-augmented dataset
+      dataset = load_reasoning_dataset()
+
+      # 3. Initialize DAPO trainer
+      trainer = DAPOTrainer(
+          model=model,
+          reward_fn=IaCReasoningReward(),
+          group_size=8,
+          clip_low=0.2,
+          clip_high=0.28,
+          token_level=True,
+      )
+
+      # 4. Train with dynamic sampling
+      trainer.train(dataset, epochs=3)
+
+      # 5. Save final model
+      trainer.save("/models/inframind-dapo/final")
+
+  ---
+  Implementation Timeline
+
+  | Phase | Task                           | Priority       |
+  |-------|--------------------------------|----------------|
+  | 1     | LLM-as-Judge Evaluation        | 🔴 Now         |
+  | 2     | Reasoning Dataset Augmentation | 🔴 Next        |
+  | 3     | GRPO Training                  | 🟡 After 2     |
+  | 4     | DAPO Techniques                | 🟡 After 3     |
+  | 5     | Multi-Step Rewards             | 🟢 Enhancement |
+  | 6     | Modal Pipeline                 | 🟢 Final       |
+
+  ---
+  Files to Create
+
+  inframind/
+  ├── inframind/
+  │   ├── evaluation/
+  │   │   ├── __init__.py
+  │   │   ├── llm_judge.py        # LLM-as-Judge scoring
+  │   │   └── metrics.py          # Accuracy computation
+  │   ├── reasoning/
+  │   │   ├── __init__.py
+  │   │   ├── augment.py          # Add <think> tags to dataset
+  │   │   └── rewards.py          # Reasoning-aware rewards
+  │   ├── dapo/
+  │   │   ├── __init__.py
+  │   │   ├── trainer.py          # DAPO trainer
+  │   │   ├── clip_higher.py      # Asymmetric clipping
+  │   │   ├── dynamic_sampling.py # Filter zero-gradient batches
+  │   │   └── token_loss.py       # Token-level loss
+  │   └── train.py                # Updated GRPO trainer
+  ├── modal_dapo.py               # Modal training script
+  └── scripts/
+      ├── evaluate.py             # Run LLM-as-Judge
+      └── augment_reasoning.py    # Generate thinking traces
+
+  ---
+  Shall I start with Phase 1 (LLM-as-Judge Evaluation)?

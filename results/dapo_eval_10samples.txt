@@ -1,0 +1,49 @@
+DAPO Model Evaluation - 10 Samples
+==================================
+Date: 2025-12-11
+Model: inframind-dapo/final (built on GRPO checkpoint)
+
+Sample 1: TERRAFORM [PASS] (reward=0.90)
+  Prompt: Create a Terraform resource for an AWS ElastiCache Redis cluster named 'session-cache'
+  Output: To create a Terraform resource for an AWS Elasticache Redis cluster named "session-cache", we'll need to understand some prerequisites first...
+
+Sample 2: TERRAFORM [PASS] (reward=0.85)
+  Prompt: Write Terraform code for an AWS Elastic Beanstalk application with Python platform
+  Output: To create an AWS Elastic Beanstalk application with a Python platform using Terraform, we need to define the environment, services, and configuration details...
+
+Sample 3: TERRAFORM [PASS] (reward=0.85)
+  Prompt: Create a Terraform AWS Glue job resource for ETL processing
+  Output: ### Analysis: To create a Terraform AWS Glue job resource for ETL (Extract, Transform, Load) processing, we need to define the necessary components...
+
+Sample 4: TERRAFORM [PASS] (reward=0.69)
+  Prompt: Write Terraform for an AWS AppSync GraphQL API with DynamoDB resolver
+  Output: ### ANALYSIS To create an AWS AppSync GraphQL API using DynamoDB as a resolver, you need to understand the following aspects...
+
+Sample 5: TERRAFORM [PASS] (reward=0.85)
+  Prompt: Create a Terraform resource for AWS Batch compute environment
+  Output: ### ANALYSIS: To create a Terraform resource for an AWS Batch compute environment, we need to consider several key components...
+
+Sample 6: TERRAFORM [PASS] (reward=1.00)
+  Prompt: Write Terraform code for an AWS MSK (Kafka) cluster with 3 brokers
+  Output: ### Analysis: To create a Terraform configuration for an Amazon MSK (Kafka) cluster with 3 brokers, we need to consider the following...
+
+Sample 7: TERRAFORM [PASS] (reward=0.90)
+  Prompt: Create a Terraform AWS MediaConvert job template resource
+  Output: ### Analysis: The goal is to create a Terraform configuration that defines a media convert job template...
+
+Sample 8: TERRAFORM [PASS] (reward=0.69)
+  Prompt: Write Terraform for AWS DocumentDB cluster with 2 instances
+  Output: ### Analysis: - **Resources Needed**: An AWS DocumentDB cluster (instance) with two read replicas...
+
+Sample 9: TERRAFORM [PASS] (reward=1.00)
+  Prompt: Create a Terraform resource for AWS Neptune graph database
+  Output: ### ANALYSIS: To create a Terraform resource for AWS Neptune graph database, we need to consider several key components...
+
+Sample 10: TERRAFORM [PASS] (reward=0.80)
+  Prompt: Write Terraform code for AWS Timestream database and table
+  Output: Certainly! Below is a sample Terraform configuration for creating an Amazon Timestream database and table in AWS...
+
+==================================
+RESULTS: 100.0% (10/10)
+Average Reward: 0.85
+Compare to GRPO: 97.3% (107/110)

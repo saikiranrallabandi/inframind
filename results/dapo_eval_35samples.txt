@@ -1,0 +1,60 @@
+DAPO Model Evaluation - 35 Samples
+==================================
+Date: 2025-12-11
+Model: inframind-dapo/final (built on GRPO checkpoint)
+
+OVERALL: 97.1% (34/35)
+
+BY CATEGORY:
+- Terraform:  95.0% (19/20)
+- Kubernetes: 100.0% (15/15)
+
+DETAILED RESULTS:
+================
+
+TERRAFORM (20 samples, 19 PASS, 1 FAIL):
+1.  [PASS] (0.90) ElastiCache Redis cluster
+2.  [PASS] (0.75) Elastic Beanstalk Python
+3.  [PASS] (0.90) AWS Glue ETL job
+4.  [PASS] (0.79) AppSync GraphQL + DynamoDB
+5.  [PASS] (0.95) AWS Batch compute
+6.  [FAIL] (0.41) AWS MSK Kafka cluster - confused availability zones
+7.  [PASS] (0.79) MediaConvert job template
+8.  [PASS] (0.79) DocumentDB cluster
+9.  [PASS] (0.95) Neptune graph database
+10. [PASS] (0.80) Timestream database
+11. [PASS] (1.00) AWS IoT thing + policy
+12. [PASS] (1.00) AWS Pinpoint SMS
+13. [PASS] (0.90) GameLift fleet
+14. [PASS] (0.90) WorkSpaces directory
+15. [PASS] (0.69) DataSync S3 to EFS
+16. [PASS] (0.69) Azure Container Instances
+17. [PASS] (0.90) GCP Cloud Composer
+18. [PASS] (0.90) GCP Memorystore Redis
+19. [PASS] (0.64) Azure Service Fabric
+20. [PASS] (0.90) GCP Vertex AI endpoint
+
+KUBERNETES (15 samples, 15 PASS, 0 FAIL):
+21. [PASS] (0.95) StatefulSet MongoDB
+22. [PASS] (1.00) DaemonSet log collection
+23. [PASS] (0.95) CronJob database backup
+24. [PASS] (1.00) PodDisruptionBudget
+25. [PASS] (0.95) LimitRange CPU/memory
+26. [PASS] (1.00) ResourceQuota
+27. [PASS] (1.00) PriorityClass
+28. [PASS] (1.00) ValidatingWebhook
+29. [PASS] (0.95) Ingress TLS + routing
+30. [PASS] (1.00) NetworkPolicy
+31. [PASS] (1.00) ServiceAccount RBAC
+32. [PASS] (1.00) ConfigMap env settings
+33. [PASS] (0.95) PersistentVolume NFS (Sample 33 skipped in output)
+34. [PASS] (0.95) Blue-green deployment
+35. [PASS] (1.00) Istio service mesh
+
+COMPARISON:
+===========
+GRPO:  97.3% (107/110)
+DAPO:  97.1% (34/35)
+
+Key observation: DAPO matches GRPO accuracy while adding structured multi-step reasoning
+(Analysis -> Plan -> Code -> Verify) to outputs.

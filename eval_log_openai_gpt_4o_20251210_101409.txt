@@ -1,0 +1,135 @@
+
+============================================================
+Evaluating openai/gpt-4o on 110 samples
+Log file: eval_log_openai_gpt_4o_20251210_101409.txt
+Results file: eval_results_openai_gpt_4o_20251210_101409.json
+============================================================
+
+[  1/110] terraform       | PASS | reward=1.00
+[  2/110] terraform       | PASS | reward=1.00
+[  3/110] terraform       | PASS | reward=0.88
+[  4/110] terraform       | PASS | reward=0.80
+[  5/110] terraform       | PASS | reward=1.00
+[  6/110] terraform       | PASS | reward=1.00
+[  7/110] terraform       | PASS | reward=1.00
+[  8/110] terraform       | PASS | reward=1.00
+[  9/110] terraform       | PASS | reward=1.00
+[ 10/110] terraform       | PASS | reward=1.00
+[ 11/110] terraform       | PASS | reward=1.00
+[ 12/110] terraform       | PASS | reward=1.00
+[ 13/110] terraform       | PASS | reward=1.00
+[ 14/110] terraform       | PASS | reward=1.00
+[ 15/110] terraform       | PASS | reward=1.00
+[ 16/110] terraform       | PASS | reward=1.00
+[ 17/110] terraform       | PASS | reward=1.00
+[ 18/110] terraform       | PASS | reward=1.00
+[ 19/110] terraform       | PASS | reward=1.00
+[ 20/110] terraform       | PASS | reward=1.00
+[ 21/110] kubernetes      | PASS | reward=1.00
+[ 22/110] kubernetes      | PASS | reward=1.00
+[ 23/110] kubernetes      | PASS | reward=1.00
+[ 24/110] kubernetes      | PASS | reward=1.00
+[ 25/110] kubernetes      | PASS | reward=1.00
+[ 26/110] kubernetes      | PASS | reward=1.00
+[ 27/110] kubernetes      | PASS | reward=1.00
+[ 28/110] kubernetes      | PASS | reward=1.00
+[ 29/110] kubernetes      | PASS | reward=1.00
+[ 30/110] kubernetes      | PASS | reward=1.00
+[ 31/110] kubernetes      | PASS | reward=1.00
+[ 32/110] kubernetes      | PASS | reward=1.00
+[ 33/110] kubernetes      | PASS | reward=1.00
+[ 34/110] kubernetes      | PASS | reward=1.00
+[ 35/110] kubernetes      | PASS | reward=1.00
+[ 36/110] kubernetes      | PASS | reward=1.00
+[ 37/110] kubernetes      | PASS | reward=1.00
+[ 38/110] kubernetes      | PASS | reward=1.00
+[ 39/110] kubernetes      | PASS | reward=1.00
+[ 40/110] kubernetes      | PASS | reward=1.00
+[ 41/110] dockerfile      | PASS | reward=0.85
+[ 42/110] dockerfile      | PASS | reward=0.85
+[ 43/110] dockerfile      | PASS | reward=0.85
+[ 44/110] dockerfile      | PASS | reward=0.85
+[ 45/110] dockerfile      | PASS | reward=0.85
+[ 46/110] dockerfile      | PASS | reward=0.85
+[ 47/110] dockerfile      | PASS | reward=0.85
+[ 48/110] dockerfile      | PASS | reward=0.85
+[ 49/110] dockerfile      | PASS | reward=0.85
+[ 50/110] dockerfile      | PASS | reward=0.85
+[ 51/110] dockerfile      | PASS | reward=0.85
+[ 52/110] dockerfile      | PASS | reward=0.85
+[ 53/110] dockerfile      | PASS | reward=0.85
+[ 54/110] dockerfile      | PASS | reward=0.85
+[ 55/110] dockerfile      | PASS | reward=0.85
+[ 56/110] docker-compose  | PASS | reward=1.00
+[ 57/110] docker-compose  | PASS | reward=1.00
+[ 58/110] docker-compose  | PASS | reward=1.00
+[ 59/110] docker-compose  | PASS | reward=1.00
+[ 60/110] docker-compose  | PASS | reward=1.00
+[ 61/110] docker-compose  | PASS | reward=1.00
+[ 62/110] docker-compose  | PASS | reward=1.00
+[ 63/110] docker-compose  | PASS | reward=1.00
+[ 64/110] docker-compose  | PASS | reward=1.00
+[ 65/110] docker-compose  | PASS | reward=1.00
+[ 66/110] docker-compose  | PASS | reward=1.00
+[ 67/110] docker-compose  | PASS | reward=1.00
+[ 68/110] docker-compose  | PASS | reward=1.00
+[ 69/110] docker-compose  | PASS | reward=1.00
+[ 70/110] docker-compose  | PASS | reward=1.00
+[ 71/110] github-actions  | PASS | reward=1.00
+[ 72/110] github-actions  | PASS | reward=1.00
+[ 73/110] github-actions  | PASS | reward=1.00
+[ 74/110] github-actions  | PASS | reward=1.00
+[ 75/110] github-actions  | PASS | reward=1.00
+[ 76/110] github-actions  | PASS | reward=1.00
+[ 77/110] github-actions  | PASS | reward=1.00
+[ 78/110] github-actions  | PASS | reward=1.00
+[ 79/110] github-actions  | PASS | reward=1.00
+[ 80/110] github-actions  | PASS | reward=1.00
+[ 81/110] github-actions  | PASS | reward=1.00
+[ 82/110] github-actions  | PASS | reward=1.00
+[ 83/110] github-actions  | PASS | reward=1.00
+[ 84/110] github-actions  | PASS | reward=1.00
+[ 85/110] github-actions  | PASS | reward=1.00
+[ 86/110] ansible         | PASS | reward=1.00
+[ 87/110] ansible         | PASS | reward=1.00
+[ 88/110] ansible         | PASS | reward=1.00
+[ 89/110] ansible         | PASS | reward=1.00
+[ 90/110] ansible         | PASS | reward=1.00
+[ 91/110] ansible         | PASS | reward=1.00
+[ 92/110] ansible         | PASS | reward=1.00
+[ 93/110] ansible         | PASS | reward=1.00
+[ 94/110] ansible         | PASS | reward=1.00
+[ 95/110] ansible         | PASS | reward=1.00
+[ 96/110] ansible         | PASS | reward=1.00
+[ 97/110] ansible         | PASS | reward=1.00
+[ 98/110] ansible         | PASS | reward=1.00
+[ 99/110] ansible         | PASS | reward=1.00
+[100/110] ansible         | PASS | reward=1.00
+[101/110] cloudformation  | PASS | reward=1.00
+[102/110] cloudformation  | PASS | reward=1.00
+[103/110] cloudformation  | PASS | reward=1.00
+[104/110] cloudformation  | PASS | reward=1.00
+[105/110] cloudformation  | PASS | reward=1.00
+[106/110] cloudformation  | PASS | reward=1.00
+[107/110] cloudformation  | PASS | reward=1.00
+[108/110] cloudformation  | PASS | reward=1.00
+[109/110] cloudformation  | PASS | reward=1.00
+[110/110] cloudformation  | PASS | reward=1.00
+
+============================================================
+RESULTS: openai/gpt-4o
+============================================================
+
+Overall Accuracy: 100.0% (110/110)
+
+By Category:
+  ansible        : 100.0% (15/15)
+  cloudformation : 100.0% (10/10)
+  docker-compose : 100.0% (15/15)
+  dockerfile     : 100.0% (15/15)
+  github-actions : 100.0% (15/15)
+  kubernetes     : 100.0% (20/20)
+  terraform      : 100.0% (20/20)
+
+Log saved to: eval_log_openai_gpt_4o_20251210_101409.txt
+Results saved to: eval_results_openai_gpt_4o_20251210_101409.json
