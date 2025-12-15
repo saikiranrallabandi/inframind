@@ -29,8 +29,15 @@ image = (
         "peft==0.14.0",
         "trl>=0.12.0",
         "datasets",
+        "huggingface_hub",
     )
     .add_local_file("data/real_code_2k.json", "/root/training_data.json")
+)
+
+# HuggingFace upload image (with hub library)
+hf_image = (
+    modal.Image.debian_slim(python_version="3.11")
+    .pip_install("huggingface_hub", "transformers", "peft", "torch")
 )
 
 
@@ -580,6 +587,95 @@ def evaluate():
         "correct": results["correct"],
         "total": results["total"],
         "by_category": results["by_category"],
+    }
+
+
+# =============================================================================
+# HUGGINGFACE UPLOAD
+# =============================================================================
+
+@app.function(
+    image=hf_image,
+    volumes={MODEL_DIR: model_volume},
+    secrets=[modal.Secret.from_name("huggingface-secret")],
+    timeout=1800,
+)
+def upload_to_huggingface(repo_name: str = "inframind-0.5b-grpo"):
+    """
+    Upload GRPO model to HuggingFace Hub.
+
+    Usage:
+        modal run grpo_training.py::upload_to_huggingface
+        modal run grpo_training.py::upload_to_huggingface --repo-name my-custom-name
+
+    Prerequisites:
+        1. Create HuggingFace token: https://huggingface.co/settings/tokens
+        2. Create Modal secret:
+           modal secret create huggingface-secret HUGGINGFACE_TOKEN=hf_xxxxx
+    """
+    import os
+    from huggingface_hub import HfApi, create_repo
+
+    print("=" * 60)
+    print("Uploading GRPO Model to HuggingFace")
+    print("=" * 60)
+
+    GRPO_PATH = "/models/inframind-grpo/final"
+
+    # Get HF token from environment (set by Modal secret)
+    hf_token = os.environ.get("HUGGINGFACE_TOKEN") or os.environ.get("HF_TOKEN")
+    if not hf_token:
+        raise ValueError("HUGGINGFACE_TOKEN not found. Create secret with: modal secret create huggingface-secret HUGGINGFACE_TOKEN=hf_xxxxx")
+
+    # Check model exists
+    if not os.path.exists(GRPO_PATH):
+        raise FileNotFoundError(f"Model not found at {GRPO_PATH}. Run training first.")
+
+    # List files to upload
+    print(f"\nModel path: {GRPO_PATH}")
+    files = os.listdir(GRPO_PATH)
+    print(f"Files to upload: {files}")
+
+    # Initialize API
+    api = HfApi()
+
+    # Get username
+    user_info = api.whoami(token=hf_token)
+    username = user_info["name"]
+    full_repo_name = f"{username}/{repo_name}"
+
+    print(f"\nUploading to: {full_repo_name}")
+
+    # Create repo if it doesn't exist
+    try:
+        create_repo(
+            repo_id=full_repo_name,
+            token=hf_token,
+            repo_type="model",
+            exist_ok=True,
+        )
+        print(f"  Repository ready: https://huggingface.co/{full_repo_name}")
+    except Exception as e:
+        print(f"  Note: {e}")
+
+    # Upload model files
+    print("\nUploading model files...")
+    api.upload_folder(
+        folder_path=GRPO_PATH,
+        repo_id=full_repo_name,
+        repo_type="model",
+        token=hf_token,
+    )
+
+    print(f"\n{'='*60}")
+    print(f"SUCCESS! Model uploaded to:")
+    print(f"https://huggingface.co/{full_repo_name}")
+    print(f"{'='*60}")
+
+    return {
+        "status": "success",
+        "repo": full_repo_name,
+        "url": f"https://huggingface.co/{full_repo_name}",
     }
 
 

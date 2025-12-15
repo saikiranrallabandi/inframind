@@ -99,6 +99,12 @@ image = (
     .add_local_file("data/real_code_2k.json", "/root/training_data.json")
 )
 
+# HuggingFace upload image
+hf_image = (
+    modal.Image.debian_slim(python_version="3.11")
+    .pip_install("huggingface_hub", "transformers", "peft", "torch")
+)
+
 
 # =============================================================================
 # MULTI-STEP REASONING PROMPT
@@ -1040,6 +1046,90 @@ def quick_test(num_samples: int = 110):
     print(f"{'='*60}")
 
     return {"accuracy": accuracy, "correct": correct, "total": total}
+
+
+# =============================================================================
+# HUGGINGFACE UPLOAD
+# =============================================================================
+
+@app.function(
+    image=hf_image,
+    volumes={MODEL_DIR: model_volume},
+    secrets=[modal.Secret.from_name("huggingface-secret")],
+    timeout=1800,
+)
+def upload_to_huggingface(repo_name: str = "inframind-0.5b-dapo"):
+    """
+    Upload DAPO model to HuggingFace Hub.
+
+    Usage:
+        modal run dapo_training.py::upload_to_huggingface
+        modal run dapo_training.py::upload_to_huggingface --repo-name my-custom-name
+    """
+    import os
+    from huggingface_hub import HfApi, create_repo
+
+    print("=" * 60)
+    print("Uploading DAPO Model to HuggingFace")
+    print("=" * 60)
+
+    DAPO_PATH = "/models/inframind-dapo/final"
+
+    # Get HF token
+    hf_token = os.environ.get("HUGGINGFACE_TOKEN") or os.environ.get("HF_TOKEN")
+    if not hf_token:
+        raise ValueError("HUGGINGFACE_TOKEN not found")
+
+    # Check model exists
+    if not os.path.exists(DAPO_PATH):
+        raise FileNotFoundError(f"Model not found at {DAPO_PATH}. Run training first.")
+
+    # List files
+    print(f"\nModel path: {DAPO_PATH}")
+    files = os.listdir(DAPO_PATH)
+    print(f"Files to upload: {files}")
+
+    # Initialize API
+    api = HfApi()
+
+    # Get username
+    user_info = api.whoami(token=hf_token)
+    username = user_info["name"]
+    full_repo_name = f"{username}/{repo_name}"
+
+    print(f"\nUploading to: {full_repo_name}")
+
+    # Create repo
+    try:
+        create_repo(
+            repo_id=full_repo_name,
+            token=hf_token,
+            repo_type="model",
+            exist_ok=True,
+        )
+        print(f"  Repository ready: https://huggingface.co/{full_repo_name}")
+    except Exception as e:
+        print(f"  Note: {e}")
+
+    # Upload
+    print("\nUploading model files...")
+    api.upload_folder(
+        folder_path=DAPO_PATH,
+        repo_id=full_repo_name,
+        repo_type="model",
+        token=hf_token,
+    )
+
+    print(f"\n{'='*60}")
+    print(f"SUCCESS! Model uploaded to:")
+    print(f"https://huggingface.co/{full_repo_name}")
+    print(f"{'='*60}")
+
+    return {
+        "status": "success",
+        "repo": full_repo_name,
+        "url": f"https://huggingface.co/{full_repo_name}",
+    }
 
 
 @app.local_entrypoint()
