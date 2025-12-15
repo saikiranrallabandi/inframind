@@ -2,10 +2,18 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![HuggingFace](https://img.shields.io/badge/%F0%9F%A4%97-Models-yellow)](https://huggingface.co/srallabandi0225)
 
-**A fine-tuning toolkit for training small language models on Infrastructure-as-Code.**
+**A fine-tuning toolkit for training small language models on Infrastructure-as-Code using reinforcement learning (GRPO/DAPO).**
 
-> InfraMind is a training toolkit, not a model. It fine-tunes existing SLMs (like Qwen) using GRPO with domain-specific rewards. The resulting models (e.g., `qwen-0.5b-inframind`) can generate valid IaC.
+> InfraMind fine-tunes SLMs using GRPO/DAPO with domain-specific rewards to generate valid Terraform, Kubernetes, Docker, and CI/CD configurations.
+
+## Trained Models
+
+| Model | Method | Accuracy | HuggingFace |
+|-------|--------|----------|-------------|
+| **inframind-0.5b-grpo** | GRPO | **97.3%** | [srallabandi0225/inframind-0.5b-grpo](https://huggingface.co/srallabandi0225/inframind-0.5b-grpo) |
+| **inframind-0.5b-dapo** | DAPO | **96.4%** | [srallabandi0225/inframind-0.5b-dapo](https://huggingface.co/srallabandi0225/inframind-0.5b-dapo) |
 
 ## What is InfraMind?
 
@@ -19,10 +27,16 @@ InfraMind is a **fine-tuning toolkit** that:
 ```
 ┌─────────────────┐      ┌─────────────────┐      ┌─────────────────────┐
 │  Base Model     │  →   │  InfraMind      │  →   │  Fine-tuned Model   │
-│  (Qwen 0.5B)    │      │  Fine-tuning    │      │  (qwen-0.5b-        │
-│                 │      │  (GRPO + IaC    │      │   inframind)        │
-│                 │      │   Rewards)      │      │                     │
+│  Qwen2.5-0.5B   │      │  GRPO Training  │      │  inframind-0.5b-grpo│
+│  -Instruct      │      │  + IaC Rewards  │      │  (97.3% accuracy)   │
 └─────────────────┘      └─────────────────┘      └─────────────────────┘
+                                                            │
+                                                            ▼
+                                                  ┌─────────────────────┐
+                                                  │  DAPO Training      │
+                                                  │  inframind-0.5b-dapo│
+                                                  │  (96.4% accuracy)   │
+                                                  └─────────────────────┘
 ```
 
 ### What InfraMind Provides
@@ -295,9 +309,11 @@ inframind/
 ## Roadmap
 
 - [x] InfraMind-Bench dataset (500+ tasks)
-- [x] Fine-tuning pipeline with GRPO
+- [x] Fine-tuning pipeline with GRPO/DAPO
 - [x] Domain-specific reward functions
-- [ ] Release fine-tuned models on HuggingFace (`qwen-0.5b-inframind`, `qwen-1.5b-inframind`)
+- [x] Release fine-tuned models on HuggingFace
+  - [inframind-0.5b-grpo](https://huggingface.co/srallabandi0225/inframind-0.5b-grpo) (97.3%)
+  - [inframind-0.5b-dapo](https://huggingface.co/srallabandi0225/inframind-0.5b-dapo) (96.4%)
 - [ ] Real validation integration (`terraform validate`)
 - [ ] Security scoring (`tfsec`, `checkov`)
 - [ ] CLI tool (`inframind generate "create S3 bucket"`)
@@ -305,11 +321,12 @@ inframind/
 ## Citation
 
 ```bibtex
-@article{rallabandi2024inframind,
-  title={InfraMind: Fine-tuning Small Language Models for Infrastructure-as-Code Generation},
+@misc{rallabandi2025inframind,
+  title={InfraMind: Fine-tuning Small Language Models for Infrastructure-as-Code Generation with Reinforcement Learning},
   author={Rallabandi, Sai Kiran},
-  journal={arXiv preprint arXiv:2024.XXXXX},
-  year={2024}
+  year={2025},
+  publisher={HuggingFace},
+  url={https://huggingface.co/srallabandi0225/inframind-0.5b-grpo}
 }
 ```
 
@@ -323,6 +340,8 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ## Acknowledgments
 
+- [Qwen Team](https://github.com/QwenLM/Qwen) for the base model
 - [DeepSeek](https://github.com/deepseek-ai) for GRPO
+- [NVIDIA NeMo](https://docs.nvidia.com/nemo) for DAPO reference
+- [TRL](https://github.com/huggingface/trl) for training infrastructure
 - [Stanford Alpaca](https://github.com/tatsu-lab/stanford_alpaca) for data format
-- [AIAC](https://github.com/gofireflyio/aiac) for IaC task patterns
