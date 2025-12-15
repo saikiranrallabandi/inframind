@@ -679,6 +679,136 @@ def upload_to_huggingface(repo_name: str = "inframind-0.5b-grpo"):
     }
 
 
+# =============================================================================
+# MERGE AND UPLOAD (Full Model)
+# =============================================================================
+
+@app.function(
+    gpu="A10G",
+    image=image,
+    volumes={MODEL_DIR: model_volume},
+    secrets=[modal.Secret.from_name("huggingface-secret")],
+    timeout=3600,
+)
+def merge_and_upload(repo_name: str = "inframind-0.5b-grpo"):
+    """
+    Merge LoRA adapter with base model and upload as complete model to HuggingFace.
+
+    This makes the model easier to use (no need to load adapter separately) and
+    ensures download tracking works properly.
+
+    Usage:
+        modal run grpo_training.py::merge_and_upload
+    """
+    import os
+    import torch
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+    from peft import PeftModel
+    from huggingface_hub import HfApi, create_repo
+
+    print("=" * 60)
+    print("Merging LoRA Adapter with Base Model")
+    print("=" * 60)
+
+    BASE_MODEL = "Qwen/Qwen2.5-0.5B-Instruct"
+    ADAPTER_PATH = "/models/inframind-grpo/final"
+    MERGED_PATH = "/models/inframind-grpo/merged"
+
+    # Check adapter exists
+    if not os.path.exists(ADAPTER_PATH):
+        raise FileNotFoundError(f"Adapter not found at {ADAPTER_PATH}. Run training first.")
+
+    # Step 1: Load base model
+    print(f"\n[1/4] Loading base model: {BASE_MODEL}")
+    tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL)
+    model = AutoModelForCausalLM.from_pretrained(
+        BASE_MODEL,
+        torch_dtype=torch.float16,
+        device_map="auto",
+    )
+
+    # Step 2: Load LoRA adapter
+    print(f"\n[2/4] Loading LoRA adapter: {ADAPTER_PATH}")
+    model = PeftModel.from_pretrained(model, ADAPTER_PATH)
+
+    # Step 3: Merge and unload
+    print("\n[3/4] Merging adapter into base model...")
+    model = model.merge_and_unload()
+
+    # Save merged model
+    print(f"\n[4/4] Saving merged model to: {MERGED_PATH}")
+    os.makedirs(MERGED_PATH, exist_ok=True)
+    model.save_pretrained(MERGED_PATH, safe_serialization=True)
+    tokenizer.save_pretrained(MERGED_PATH)
+
+    # Create config.json with model_type
+    import json
+    config_path = os.path.join(MERGED_PATH, "config.json")
+    with open(config_path, "r") as f:
+        config = json.load(f)
+    # Ensure model_type is set
+    if "model_type" not in config:
+        config["model_type"] = "qwen2"
+    with open(config_path, "w") as f:
+        json.dump(config, f, indent=2)
+
+    print(f"\nMerged model files:")
+    for f in os.listdir(MERGED_PATH):
+        size = os.path.getsize(os.path.join(MERGED_PATH, f)) / (1024*1024)
+        print(f"  {f}: {size:.1f} MB")
+
+    # Upload to HuggingFace
+    print("\n" + "=" * 60)
+    print("Uploading Merged Model to HuggingFace")
+    print("=" * 60)
+
+    hf_token = os.environ.get("HUGGINGFACE_TOKEN") or os.environ.get("HF_TOKEN")
+    if not hf_token:
+        raise ValueError("HUGGINGFACE_TOKEN not found")
+
+    api = HfApi()
+    user_info = api.whoami(token=hf_token)
+    username = user_info["name"]
+    full_repo_name = f"{username}/{repo_name}"
+
+    print(f"\nUploading to: {full_repo_name}")
+
+    # Create/update repo
+    try:
+        create_repo(
+            repo_id=full_repo_name,
+            token=hf_token,
+            repo_type="model",
+            exist_ok=True,
+        )
+    except Exception as e:
+        print(f"  Note: {e}")
+
+    # Upload merged model
+    print("\nUploading merged model files...")
+    api.upload_folder(
+        folder_path=MERGED_PATH,
+        repo_id=full_repo_name,
+        repo_type="model",
+        token=hf_token,
+    )
+
+    model_volume.commit()
+
+    print(f"\n{'='*60}")
+    print(f"SUCCESS! Merged model uploaded to:")
+    print(f"https://huggingface.co/{full_repo_name}")
+    print(f"\nUsers can now load with:")
+    print(f'  model = AutoModelForCausalLM.from_pretrained("{full_repo_name}")')
+    print(f"{'='*60}")
+
+    return {
+        "status": "success",
+        "repo": full_repo_name,
+        "url": f"https://huggingface.co/{full_repo_name}",
+    }
+
+
 @app.local_entrypoint()
 def main():
     """Run GRPO training."""

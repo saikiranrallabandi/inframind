@@ -31,3 +31,10 @@ Thumbs.db
 
 # Jupyter
 .ipynb_checkpoints/
+
+# Secrets
+.env
+.env.*
+*.key
+*.pem
+credentials*
