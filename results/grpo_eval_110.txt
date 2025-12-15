@@ -1,0 +1,51 @@
+GRPO Model Evaluation - 110 Held-Out Test Samples
+================================================
+Date: 2025-12-14
+Model: inframind-grpo/final (Qwen2.5-0.5B-Instruct + LoRA)
+
+TRAINING DETAILS:
+-----------------
+- Base Model: Qwen/Qwen2.5-0.5B-Instruct (500M parameters)
+- Training Method: GRPO (Group Relative Policy Optimization)
+- Training Samples: 500 samples
+- LoRA Config: rank=32, alpha=64, dropout=0.1
+- Epochs: 3
+- Learning Rate: 2e-4
+- Batch Size: 4 (gradient accumulation: 4)
+
+EVALUATION RESULTS:
+==================
+Overall Accuracy: 97.3% (107/110)
+
+BY CATEGORY:
+------------
+| Category        | Accuracy | Correct/Total |
+|-----------------|----------|---------------|
+| Ansible         | 100.0%   | 15/15         |
+| CloudFormation  | 100.0%   | 10/10         |
+| Docker-compose  | 100.0%   | 15/15         |
+| Dockerfile      |  93.3%   | 14/15         |
+| GitHub-Actions  | 100.0%   | 15/15         |
+| Kubernetes      |  90.0%   | 18/20         |
+| Terraform       | 100.0%   | 20/20         |
+
+COMPARISON WITH BASELINES:
+--------------------------
+| Model                    | Accuracy | Improvement |
+|--------------------------|----------|-------------|
+| Base Qwen2.5-0.5B        | 45.0%    | -           |
+| SFT Fine-tuned           | 64.5%    | +19.5pp     |
+| GRPO Fine-tuned          | 97.3%    | +52.3pp     |
+
+NOTES:
+------
+- GRPO shows significant improvement over SFT baseline (+32.8pp)
+- Perfect scores on Ansible, CloudFormation, Docker-compose, GitHub-Actions, Terraform
+- Dockerfile and Kubernetes categories show room for improvement
+- Rule-based evaluation using decomposed reward function (syntax + semantic + structure)
+
+EVALUATION METHODOLOGY:
+----------------------
+- Reward function: R = 0.4 * syntax_score + 0.3 * semantic_score + 0.3 * structure_score
+- Pass threshold: reward >= 0.6
+- Evaluation performed on held-out test set (not seen during training)

@@ -1,0 +1,185 @@
+# InfraMind DAPO Configuration
+# Based on lavaman131/reasoning-slms and NVIDIA NeMo DAPO implementation
+
+# =============================================================================
+# MODEL SETTINGS
+# =============================================================================
+model:
+  model_id: "Qwen/Qwen2.5-0.5B-Instruct"
+  torch_dtype: "bfloat16"
+  attn_implementation: "flash_attention_2"
+  trust_remote_code: true
+
+# =============================================================================
+# LORA SETTINGS
+# =============================================================================
+lora:
+  r: 16
+  lora_alpha: 32
+  lora_dropout: 0.05
+  bias: "none"
+  task_type: "CAUSAL_LM"
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+
+# =============================================================================
+# TRAINING HYPERPARAMETERS
+# =============================================================================
+training:
+  # Batch settings
+  per_device_train_batch_size: 2
+  gradient_accumulation_steps: 8  # Effective batch size: 16
+
+  # Learning rate
+  learning_rate: 5.0e-6
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.1
+
+  # Optimizer
+  optimizer: "adamw_torch_fused"
+  adam_beta1: 0.9
+  adam_beta2: 0.99
+  weight_decay: 0.1
+  max_grad_norm: 0.1
+
+  # Schedule
+  num_train_epochs: 2
+  max_steps: -1
+
+  # Logging & saving
+  logging_steps: 5
+  save_steps: 100
+  save_total_limit: 3
+
+  # Precision
+  bf16: true
+
+  # Reproducibility
+  seed: 42
+
+# =============================================================================
+# DAPO SPECIFIC SETTINGS (Four Key Innovations)
+# =============================================================================
+dapo:
+  # -------------------------------------------------------------------------
+  # 1. CLIP-HIGHER: Asymmetric Clipping
+  # Standard PPO clips at [1-ε, 1+ε], DAPO uses [1-ε_low, 1+ε_high]
+  # This prevents entropy collapse and promotes exploration
+  # -------------------------------------------------------------------------
+  loss_type: "grpo"
+  epsilon: 0.2       # ε_low - standard lower clip
+  epsilon_high: 0.28  # ε_high - higher upper clip for exploration (null = use epsilon)
+
+  # KL divergence coefficient - set to 0 for pure DAPO (no KL penalty)
+  beta: 0.0
+
+  # -------------------------------------------------------------------------
+  # 2. DYNAMIC SAMPLING
+  # Skip batches where all rewards are identical (no gradient signal)
+  # batch_multiplier generates more samples, then filters to diverse ones
+  # -------------------------------------------------------------------------
+  use_dynamic_sampling: true
+  batch_multiplier: 3  # Generate 3x samples, filter to batch_size
+  dynamic_sampling_max_gen_batches: 10
+
+  # -------------------------------------------------------------------------
+  # 3. TOKEN-LEVEL POLICY GRADIENT LOSS
+  # Instead of sequence-level loss, compute loss per token
+  # Critical for long chain-of-thought (CoT) scenarios
+  # -------------------------------------------------------------------------
+  token_level_loss: true
+
+  # -------------------------------------------------------------------------
+  # 4. OVERLONG REWARD SHAPING
+  # Soft penalty for sequences exceeding (max_length - buffer)
+  # Reduces reward noise from truncated completions
+  # -------------------------------------------------------------------------
+  use_soft_overlong_punishment: true
+  overlong_buffer_length: 100  # Start penalizing at max_length - 100
+  overlong_buffer_penalty: 0.5  # Penalty factor (0-1)
+
+  # Generation settings
+  num_generations: 8  # More generations for better advantage estimation
+  temperature: 0.9    # Higher temp for more exploration
+  max_prompt_length: 256
+  max_completion_length: 768
+
+  # Reward settings
+  scale_rewards: true
+  mask_truncated_completions: false
+
+# =============================================================================
+# MULTI-STEP REASONING SETTINGS
+# =============================================================================
+reasoning:
+  # Enable multi-step reasoning prompts
+  enabled: true
+
+  # System prompt for reasoning
+  system_prompt: |
+    You are an Infrastructure-as-Code expert.
+    For each request, follow this multi-step reasoning process:
+
+    1. ANALYSIS: What resources and configurations are needed?
+    2. PLAN: What's the structure, dependencies, and best practices?
+    3. CODE: Generate the complete, production-ready code
+    4. VERIFY: Check for common errors and security issues
+
+    Always show your reasoning, then provide the final code.
+
+  # Reasoning bonus in reward function
+  reasoning_bonus: 0.05  # Per component (analysis, plan, code, verify)
+  max_reasoning_bonus: 0.2  # Maximum total bonus
+
+# =============================================================================
+# DATASET SETTINGS
+# =============================================================================
+dataset:
+  name: "inframind-bench"
+  path: "data/real_code_2k.json"
+  train_size: 500
+  categories:
+    - "terraform"
+    - "kubernetes"
+    - "dockerfile"
+    - "docker-compose"
+    - "github-actions"
+    - "ansible"
+    - "cloudformation"
+
+# =============================================================================
+# REWARD FUNCTION SETTINGS
+# =============================================================================
+reward:
+  # Decomposed reward weights
+  syntax_weight: 0.4
+  semantic_weight: 0.3
+  structure_weight: 0.3
+
+  # Pass threshold
+  pass_threshold: 0.6
+
+  # Diversity penalty (entropy preservation)
+  diversity_threshold: 0.6  # Below this, apply penalty
+  diversity_penalty_min: 0.8  # Minimum multiplier
+
+# =============================================================================
+# OUTPUT SETTINGS
+# =============================================================================
+output:
+  output_dir: "/models/inframind-dapo"
+  report_to: "none"
+
+# =============================================================================
+# STARTING CHECKPOINT
+# =============================================================================
+checkpoint:
+  # Start DAPO training from GRPO checkpoint
+  grpo_checkpoint: "/models/inframind-grpo/final"
+  merge_and_unload: true  # Merge GRPO adapters before adding new DAPO adapters

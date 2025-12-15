@@ -177,10 +177,57 @@ score, details = reward.score(terraform_code, category="terraform")
 
 ## Training
 
-### Basic Training
+InfraMind supports multiple training environments:
+
+| Platform | Script | GPU Required |
+|----------|--------|--------------|
+| **Local GPU** | `python train_local.py` | Yes |
+| **Modal.com** | `modal run grpo_training.py` | Provided |
+| **AWS SageMaker** | Upload + HF Estimator | Yes |
+| **GCP Vertex AI** | Custom training job | Yes |
+| **Azure ML** | HF integration | Yes |
+| **HuggingFace Spaces** | `accelerate launch train_local.py` | Yes |
+| **Google Colab** | Run notebook | Free GPU |
+
+### Local Training (Any GPU)
 
 ```bash
-python scripts/train.py --epochs 3 --output ./inframind-model
+# GRPO Training
+python train_local.py --method grpo --epochs 3 --output ./models/grpo
+
+# DAPO Training (from GRPO checkpoint)
+python train_local.py --method dapo --checkpoint ./models/grpo --output ./models/dapo
+
+# Quick test with 100 samples
+python train_local.py --method grpo --samples 100 --epochs 1
+
+# Evaluate trained model
+python train_local.py --evaluate ./models/grpo
+
+# Generate IaC
+python train_local.py --generate ./models/grpo --prompt "Create Terraform for AWS EC2"
+
+# Multi-GPU with Accelerate
+accelerate launch train_local.py --method grpo --epochs 3
+```
+
+### Modal.com (Cloud GPU)
+
+```bash
+# GRPO Training (Stage 1)
+modal run grpo_training.py
+
+# DAPO Training (Stage 2 - starts from GRPO checkpoint)
+modal run dapo_training.py
+
+# Evaluate GRPO model
+modal run grpo_training.py::evaluate
+
+# Evaluate DAPO model
+modal run dapo_training.py::evaluate
+
+# Quick test DAPO (110 samples)
+modal run dapo_training.py::quick_test
 ```
 
 ### Category-Specific Training

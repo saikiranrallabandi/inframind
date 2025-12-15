@@ -1,0 +1,79 @@
+DAPO Model Evaluation - Samples 35-70 (Batch 2 - After Code Extraction Fix)
+==========================================================================
+Date: 2025-12-11
+Model: inframind-dapo/final
+
+OVERALL: 94.3% (33/35)
+
+BY CATEGORY:
+- Kubernetes:     100.0% (5/5)
+- Docker-compose:  93.3% (14/15)
+- Dockerfile:      93.3% (14/15)
+
+DETAILED RESULTS:
+================
+
+KUBERNETES (5 samples, 5 PASS, 0 FAIL):
+1.  [PASS] (0.85) Job database migration
+2.  [PASS] (0.95) HorizontalPodAutoscaler
+3.  [PASS] (1.00) Secret TLS cert-manager
+4.  [PASS] (1.00) Redis Sentinel deployment
+5.  [PASS] (1.00) ClusterRole read-only
+
+DOCKERFILE (15 samples, 14 PASS, 1 FAIL):
+6.  [PASS] (0.88) Rust actix-web
+7.  [PASS] (0.88) Go multi-stage scratch
+8.  [PASS] (0.88) Java Spring Boot Gradle
+9.  [PASS] (0.83) Node.js pnpm - FIXED (was 0.22)
+10. [PASS] (0.73) Python TensorFlow ML
+11. [PASS] (0.83) React Nginx multi-stage - FIXED (was 0.32)
+12. [PASS] (0.78) Ruby Rails PostgreSQL - FIXED (was 0.10)
+13. [PASS] (0.73) .NET Core health checks
+14. [PASS] (0.83) Elixir Phoenix
+15. [PASS] (0.73) Python distroless
+16. [PASS] (0.83) Scala sbt
+17. [PASS] (0.88) PHP Laravel Composer
+18. [PASS] (0.78) C++ CMake
+19. [FAIL] (0.10) TypeScript multi-stage - model didn't output Dockerfile code
+20. [PASS] (0.78) Kotlin Gradle
+
+DOCKER-COMPOSE (15 samples, 14 PASS, 1 FAIL):
+21. [PASS] (1.00) Microservices API gateway
+22. [PASS] (0.95) ELK stack
+23. [PASS] (1.00) WordPress MySQL phpMyAdmin
+24. [PASS] (1.00) Dev environment hot reload
+25. [PASS] (0.90) Prometheus Grafana
+26. [PASS] (0.76) RabbitMQ message queue
+27. [PASS] (0.95) CI/CD Docker-in-Docker
+28. [PASS] (0.85) Kafka Zookeeper
+29. [PASS] (1.00) GitLab runner
+30. [PASS] (0.90) Minio storage
+31. [PASS] (0.85) Vault Consul
+32. [PASS] (0.85) Keycloak auth
+33. [PASS] (1.00) Nextcloud Redis - FIXED (was 0.52)
+34. [FAIL] (0.10) Airflow Celery - model generated python config instead of docker-compose
+35. [PASS] (1.00) Traefik Let's Encrypt
+
+COMPARISON WITH ORIGINAL BATCH 2:
+=================================
+Original (before fix): 85.7% (30/35) - 5 failures
+After fix:             94.3% (33/35) - 2 failures
+
+FIXED SAMPLES:
+- Node.js pnpm: 0.22 → 0.83
+- React Nginx multi-stage: 0.32 → 0.83
+- Ruby Rails PostgreSQL: 0.10 → 0.78
+- Nextcloud Redis: 0.52 → 1.00
+
+REMAINING FAILURES:
+- TypeScript multi-stage Dockerfile: Model generates JS/config files instead of Dockerfile
+- Airflow Celery: Model generates Python config instead of docker-compose.yml
+
+ROOT CAUSE OF REMAINING FAILURES:
+Model outputs multi-step reasoning but generates wrong content type (not code extraction issue)
+
+CUMULATIVE (70 samples):
+========================
+Batch 1 (0-35):   97.1% (34/35)
+Batch 2 (35-70):  94.3% (33/35) - after fix
+Combined:         95.7% (67/70)

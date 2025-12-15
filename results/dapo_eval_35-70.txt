@@ -1,0 +1,61 @@
+DAPO Model Evaluation - Samples 35-70 (Batch 2)
+===============================================
+Date: 2025-12-11
+Model: inframind-dapo/final
+
+OVERALL: 85.7% (30/35)
+
+BY CATEGORY:
+- Kubernetes:     100.0% (5/5)
+- Docker-compose:  86.7% (13/15)
+- Dockerfile:      80.0% (12/15)
+
+DETAILED RESULTS:
+================
+
+KUBERNETES (5 samples, 5 PASS, 0 FAIL):
+1.  [PASS] (0.95) Job database migration
+2.  [PASS] (1.00) HorizontalPodAutoscaler
+3.  [PASS] (0.95) Secret TLS cert-manager
+4.  [PASS] (1.00) Redis Sentinel deployment
+5.  [PASS] (1.00) ClusterRole read-only
+
+DOCKERFILE (15 samples, 12 PASS, 3 FAIL):
+6.  [PASS] (0.88) Rust actix-web
+7.  [PASS] (0.78) Go multi-stage scratch
+8.  [PASS] (0.73) Java Spring Boot Gradle
+9.  [FAIL] (0.22) Node.js pnpm - missing FROM
+10. [PASS] (0.88) Python TensorFlow ML
+11. [FAIL] (0.32) React Nginx multi-stage - missing FROM
+12. [FAIL] (0.10) Ruby Rails PostgreSQL - missing FROM
+13. [PASS] (0.64) .NET Core health checks
+14. [PASS] (0.88) Elixir Phoenix
+15. [PASS] (0.88) Python distroless
+16. [PASS] (0.88) Scala sbt
+17. [PASS] (0.78) PHP Laravel Composer
+18. [PASS] (0.88) C++ CMake
+19. [PASS] (0.73) TypeScript multi-stage
+20. [PASS] (0.78) Kotlin Gradle
+
+DOCKER-COMPOSE (15 samples, 13 PASS, 2 FAIL):
+21. [PASS] (0.92) Microservices API gateway
+22. [PASS] (0.95) ELK stack
+23. [PASS] (1.00) WordPress MySQL phpMyAdmin
+24. [PASS] (0.90) Dev environment hot reload
+25. [PASS] (0.90) Prometheus Grafana
+26. [PASS] (0.85) RabbitMQ message queue
+27. [PASS] (0.90) CI/CD Docker-in-Docker
+28. [PASS] (0.85) Kafka Zookeeper
+29. [PASS] (0.85) GitLab runner
+30. [PASS] (0.90) Minio storage
+31. [PASS] (1.00) Vault Consul
+32. [PASS] (0.95) Keycloak auth
+33. [FAIL] (0.52) Nextcloud Redis - missing services
+34. [FAIL] (0.42) Airflow Celery - incomplete
+35. [PASS] (0.95) Traefik Let's Encrypt
+
+CUMULATIVE (70 samples):
+========================
+Batch 1 (0-35):  97.1% (34/35)
+Batch 2 (35-70): 85.7% (30/35)
+Combined:        91.4% (64/70)

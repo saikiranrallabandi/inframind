@@ -1,0 +1,115 @@
+# InfraMind GRPO Configuration
+# Based on lavaman131/reasoning-slms config structure
+
+# =============================================================================
+# MODEL SETTINGS
+# =============================================================================
+model:
+  model_id: "Qwen/Qwen2.5-0.5B-Instruct"
+  torch_dtype: "bfloat16"
+  attn_implementation: "flash_attention_2"  # Options: flash_attention_2, sdpa, eager
+  trust_remote_code: true
+
+# =============================================================================
+# LORA SETTINGS
+# =============================================================================
+lora:
+  r: 16
+  lora_alpha: 32
+  lora_dropout: 0.05
+  bias: "none"
+  task_type: "CAUSAL_LM"
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+
+# =============================================================================
+# TRAINING HYPERPARAMETERS
+# =============================================================================
+training:
+  # Batch settings
+  per_device_train_batch_size: 4
+  gradient_accumulation_steps: 4  # Effective batch size: 16
+
+  # Learning rate
+  learning_rate: 5.0e-6
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.1
+
+  # Optimizer
+  optimizer: "adamw_torch_fused"
+  adam_beta1: 0.9
+  adam_beta2: 0.99
+  weight_decay: 0.1
+  max_grad_norm: 0.1
+
+  # Schedule
+  num_train_epochs: 3
+  max_steps: -1  # -1 means use num_train_epochs
+
+  # Logging & saving
+  logging_steps: 5
+  save_steps: 100
+  save_total_limit: 3
+
+  # Precision
+  bf16: true
+
+  # Reproducibility
+  seed: 42
+
+# =============================================================================
+# GRPO SPECIFIC SETTINGS
+# =============================================================================
+grpo:
+  # Loss settings
+  loss_type: "grpo"
+  beta: 0.04  # KL divergence coefficient
+  epsilon: 0.2  # Clipping parameter
+
+  # Generation settings
+  num_generations: 4
+  temperature: 0.8
+  max_prompt_length: 256
+  max_completion_length: 512
+
+  # Reward settings
+  scale_rewards: true
+  mask_truncated_completions: false
+
+# =============================================================================
+# DATASET SETTINGS
+# =============================================================================
+dataset:
+  name: "inframind-bench"
+  path: "data/real_code_2k.json"
+  train_size: 500
+  categories:
+    - "terraform"
+    - "kubernetes"
+    - "dockerfile"
+    - "docker-compose"
+    - "github-actions"
+    - "ansible"
+    - "cloudformation"
+
+# =============================================================================
+# REWARD FUNCTION SETTINGS
+# =============================================================================
+reward:
+  # Decomposed reward weights
+  syntax_weight: 0.4
+  semantic_weight: 0.3
+  structure_weight: 0.3
+
+  # Pass threshold
+  pass_threshold: 0.6
+
+# =============================================================================
+# OUTPUT SETTINGS
+# =============================================================================
+output:
+  output_dir: "/models/inframind-grpo"
+  report_to: "none"  # Options: none, wandb, tensorboard

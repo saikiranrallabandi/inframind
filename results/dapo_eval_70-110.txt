@@ -1,0 +1,73 @@
+DAPO Model Evaluation - Samples 70-110 (Batch 3)
+================================================
+Date: 2025-12-11
+Model: inframind-dapo/final
+
+OVERALL: 97.5% (39/40)
+
+BY CATEGORY:
+- GitHub Actions:   100.0% (15/15)
+- Ansible:           93.3% (14/15)
+- CloudFormation:   100.0% (10/10)
+
+DETAILED RESULTS:
+================
+
+GITHUB-ACTIONS (15 samples, 15 PASS, 0 FAIL):
+1.  [PASS] (1.00) Python package release to PyPI
+2.  [PASS] (0.90) Terraform plan on PR and apply on merge
+3.  [PASS] (1.00) Docker image build with multi-arch support
+4.  [PASS] (0.95) Kubernetes deployment with ArgoCD sync
+5.  [PASS] (1.00) Security scanning with Snyk and Trivy
+6.  [PASS] (0.95) Automated semantic versioning
+7.  [PASS] (1.00) e2e tests with Playwright
+8.  [PASS] (0.95) Go application with golangci-lint
+9.  [PASS] (1.00) Rust project with cargo test and clippy
+10. [PASS] (1.00) npm package publishing to GitHub Packages
+11. [PASS] (1.00) Matrix strategy for multiple OS and Node versions
+12. [PASS] (0.90) Database migration with rollback on failure
+13. [PASS] (1.00) Helm chart linting and publishing
+14. [PASS] (0.95) Approval gates for production deployment
+15. [PASS] (1.00) AWS CDK deployment with diff preview
+
+ANSIBLE (15 samples, 14 PASS, 1 FAIL):
+16. [PASS] (0.95) Kubernetes master node setup
+17. [PASS] (1.00) PostgreSQL installation with replication
+18. [PASS] (0.76) Ubuntu server security hardening
+19. [PASS] (0.85) Docker Swarm cluster deployment
+20. [PASS] (1.00) Nginx reverse proxy with SSL certificates
+21. [PASS] (1.00) MongoDB replica set configuration
+22. [PASS] (0.83) Prometheus node exporters setup
+23. [FAIL] (0.59) HAProxy load balancer - model outputs Python-style vars in YAML
+24. [PASS] (0.95) Elasticsearch cluster deployment
+25. [PASS] (1.00) fail2ban and UFW firewall configuration
+26. [PASS] (0.64) Redis Sentinel setup
+27. [PASS] (0.90) Jenkins master and agent nodes
+28. [PASS] (1.00) Grafana with LDAP authentication
+29. [PASS] (1.00) Vault server initialization and unsealing
+30. [PASS] (1.00) RabbitMQ cluster with mirrored queues
+
+CLOUDFORMATION (10 samples, 10 PASS, 0 FAIL):
+31. [PASS] (1.00) Lambda function with API Gateway trigger
+32. [PASS] (1.00) Auto Scaling group with launch template
+33. [PASS] (0.90) VPC with public and private subnets
+34. [PASS] (0.95) RDS Aurora cluster with read replicas
+35. [PASS] (0.95) ECS Fargate service with ALB
+36. [PASS] (0.90) S3 bucket with CloudFront distribution
+37. [PASS] (0.95) Step Functions state machine
+38. [PASS] (1.00) CodePipeline with CodeBuild stages
+39. [PASS] (0.95) SNS topic with SQS subscription
+40. [PASS] (1.00) DynamoDB table with GSI
+
+FAILURE ANALYSIS:
+=================
+- HAProxy Ansible playbook: Model generates multi-step reasoning but includes
+  Python-style variable assignments (base_config_file = "/etc/...") in YAML
+  code block instead of proper Ansible YAML syntax
+
+CUMULATIVE RESULTS (110 samples):
+=================================
+Batch 1 (0-35):   97.1% (34/35)
+Batch 2 (35-70):  94.3% (33/35) - after code extraction fix
+Batch 3 (70-110): 97.5% (39/40)
+Combined:         96.4% (106/110)
