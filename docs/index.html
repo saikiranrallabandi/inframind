@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InfraMind - IaC Generation with Reinforcement Learning</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #fafafa;
+        }
+        .container { max-width: 900px; margin: 0 auto; padding: 0 20px; }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 0;
+            text-align: center;
+        }
+        header h1 { font-size: 3rem; margin-bottom: 10px; }
+        header p { font-size: 1.2rem; opacity: 0.9; }
+
+        /* Stats */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 30px;
+        }
+        .stat {
+            text-align: center;
+        }
+        .stat-value { font-size: 2.5rem; font-weight: bold; }
+        .stat-label { font-size: 0.9rem; opacity: 0.8; }
+
+        /* Buttons */
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: transform 0.2s;
+        }
+        .btn:hover { transform: translateY(-2px); }
+        .btn-primary { background: white; color: #667eea; }
+        .btn-secondary { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); }
+
+        /* Sections */
+        section { padding: 60px 0; }
+        section h2 { font-size: 1.8rem; margin-bottom: 20px; text-align: center; }
+
+        /* Models Table */
+        .models-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .models-table th, .models-table td {
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .models-table th { background: #f8f9fa; font-weight: 600; }
+        .models-table a { color: #667eea; text-decoration: none; }
+        .models-table a:hover { text-decoration: underline; }
+        .accuracy { font-weight: bold; color: #22c55e; }
+
+        /* Code Block */
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+        }
+        .code-block .comment { color: #6a9955; }
+        .code-block .string { color: #ce9178; }
+        .code-block .keyword { color: #569cd6; }
+
+        /* Features */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .feature {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .feature h3 { margin-bottom: 10px; color: #667eea; }
+
+        /* Footer */
+        footer {
+            background: #333;
+            color: #aaa;
+            padding: 30px 0;
+            text-align: center;
+        }
+        footer a { color: #667eea; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>InfraMind</h1>
+            <p>Fine-tuning Small Language Models for Infrastructure-as-Code with Reinforcement Learning</p>
+
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value">97.3%</div>
+                    <div class="stat-label">GRPO Accuracy</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">96.4%</div>
+                    <div class="stat-label">DAPO Accuracy</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">0.5B</div>
+                    <div class="stat-label">Parameters</div>
+                </div>
+            </div>
+
+            <div class="buttons">
+                <a href="https://huggingface.co/srallabandi0225/inframind-0.5b-grpo" class="btn btn-primary">GRPO Model</a>
+                <a href="https://huggingface.co/srallabandi0225/inframind-0.5b-dapo" class="btn btn-primary">DAPO Model</a>
+                <a href="https://github.com/saikiranrallabandi/inframind" class="btn btn-secondary">GitHub</a>
+            </div>
+        </div>
+    </header>
+
+    <section>
+        <div class="container">
+            <h2>Trained Models</h2>
+            <table class="models-table">
+                <thead>
+                    <tr>
+                        <th>Model</th>
+                        <th>Method</th>
+                        <th>Accuracy</th>
+                        <th>HuggingFace</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>inframind-0.5b-grpo</strong></td>
+                        <td>GRPO</td>
+                        <td><span class="accuracy">97.3%</span></td>
+                        <td><a href="https://huggingface.co/srallabandi0225/inframind-0.5b-grpo">srallabandi0225/inframind-0.5b-grpo</a></td>
+                    </tr>
+                    <tr>
+                        <td><strong>inframind-0.5b-dapo</strong></td>
+                        <td>DAPO</td>
+                        <td><span class="accuracy">96.4%</span></td>
+                        <td><a href="https://huggingface.co/srallabandi0225/inframind-0.5b-dapo">srallabandi0225/inframind-0.5b-dapo</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section style="background: white;">
+        <div class="container">
+            <h2>Quick Start</h2>
+            <div class="code-block">
+<span class="keyword">from</span> transformers <span class="keyword">import</span> AutoModelForCausalLM, AutoTokenizer
+
+<span class="comment"># Load model</span>
+model = AutoModelForCausalLM.from_pretrained(<span class="string">"srallabandi0225/inframind-0.5b-grpo"</span>)
+tokenizer = AutoTokenizer.from_pretrained(<span class="string">"srallabandi0225/inframind-0.5b-grpo"</span>)
+
+<span class="comment"># Generate Terraform</span>
+prompt = <span class="string">"""### Instruction:
+Create Terraform for AWS EC2 instance
+### Response:
+"""</span>
+
+inputs = tokenizer(prompt, return_tensors=<span class="string">"pt"</span>)
+outputs = model.generate(**inputs, max_new_tokens=<span class="string">512</span>)
+<span class="keyword">print</span>(tokenizer.decode(outputs[<span class="string">0</span>], skip_special_tokens=<span class="keyword">True</span>))
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <div class="container">
+            <h2>Supported IaC</h2>
+            <div class="features">
+                <div class="feature">
+                    <h3>Terraform</h3>
+                    <p>AWS, GCP, Azure resources - EC2, S3, VPC, RDS, EKS, Lambda, IAM</p>
+                </div>
+                <div class="feature">
+                    <h3>Kubernetes</h3>
+                    <p>Deployments, Services, Ingress, ConfigMaps, RBAC, StatefulSets</p>
+                </div>
+                <div class="feature">
+                    <h3>Docker</h3>
+                    <p>Dockerfiles, docker-compose, multi-stage builds</p>
+                </div>
+                <div class="feature">
+                    <h3>CI/CD</h3>
+                    <p>GitHub Actions, GitLab CI, Jenkins pipelines</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>
+                <a href="https://github.com/saikiranrallabandi/inframind">GitHub</a> ·
+                <a href="https://huggingface.co/srallabandi0225">HuggingFace</a>
+            </p>
+            <p style="margin-top: 10px;">MIT License · Sai Kiran Rallabandi</p>
+        </div>
+    </footer>
+</body>
+</html>
